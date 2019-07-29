@@ -22,12 +22,21 @@ from urllib.parse import parse_qs
 
 
 class MessageHandler(BaseHTTPRequestHandler):
+    history = ""
+
     def do_POST(self):
+
         # 1. How long was the message? (Use the Content-Length header.)
+        length = int(self.headers.get("Content-Length",0))
+
 
         # 2. Read the correct amount of data from the request.
+        request_content = self.rfile.read(length).decode()
 
         # 3. Extract the "message" field from the request data.
+        # parse_qs parse the request_url into key value pair
+        
+        message = (parse_qs(request_content))["message"][0]
 
         # Send the "message" field back as the response.
         self.send_response(200)
