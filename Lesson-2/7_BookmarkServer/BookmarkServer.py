@@ -41,9 +41,21 @@
 #
 # After writing each step, restart the server and run test.py to test it.
 
+
+
+
+# Added threading to handle thread-level concurrency
+#
+#
+
+
 import http.server
 import requests
 from urllib.parse import unquote, parse_qs
+
+# this is to handle the concurrency problem
+import threading
+from socketserver import ThreadingMixIn
 
 memory = {}
 
@@ -86,6 +98,10 @@ def CheckURI(uri, timeout=5):
     
     print("Input url exists is {}.".format(str(urlStatus.status_code==200)))
     return urlStatus.status_code == 200
+
+
+class ThreadHTTPServer(ThreadingMixIn, http.server.HTTPServer):
+    "This is an HTTPServer that wupports thread-based concurrency."
 
 
 class Shortener(http.server.BaseHTTPRequestHandler):
@@ -163,6 +179,7 @@ class Shortener(http.server.BaseHTTPRequestHandler):
             self.wfile.write("Input uri is invalid! Please provide a valid uri.".encode())
 
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT',8000)) 
     server_address = ('', 8000)
     httpd = http.server.HTTPServer(server_address, Shortener)
     httpd.serve_forever()
